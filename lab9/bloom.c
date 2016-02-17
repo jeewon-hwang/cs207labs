@@ -19,16 +19,18 @@ index_t hash2(bloom_filter_t *B, key_t k) {
 }
 
 void set_bit(bloom_filter_t *B, index_t i) {
+
 	index_t table_index = i>>(uint64_t)6;
 	index_t bit_index = i%(uint64_t)64;
-	B->table[table_index] = B->table[table_index] || (uint64_t)1<<bit_index;
+	B->table[table_index] = B->table[table_index] | (uint64_t)1<<bit_index;
 }
 
 index_t get_bit(bloom_filter_t *B, index_t i) {
+	
 	index_t table_index = i>>(uint64_t)6;
 	index_t bit_index = i%(uint64_t)64;
 	index_t mask = ((uint64_t)1)<<bit_index;
-	return (B->table[table_index] && mask)>>bit_index;
+	return ((B->table)[table_index] & mask)>>bit_index;
 }
 
 void bloom_init(bloom_filter_t *B, index_t size_in_bits) {
@@ -73,8 +75,7 @@ void bloom_add(bloom_filter_t *B, key_t k) {
 	}
 }
 
-void smoke_test()
-{
+void smoke_test() {
 	bloom_filter_t *B = (bloom_filter_t *) malloc(sizeof(bloom_filter_t));
 	bloom_init(B, 1000);
 	
@@ -93,7 +94,7 @@ void smoke_test()
 
 
 
-void final_test(index_t *array1, index_t *array2) {
+void final_test() {
 	//Finally, create a loop that checks whether 
     //the numbers in the second array are in the table. 
     //Recall that we never added them, 
@@ -102,11 +103,25 @@ void final_test(index_t *array1, index_t *array2) {
     //between two sets of 100 random numbers from 0-1000000). 
     //In reality, there will be many more, because of the way Bloom filters work. 
     //Count up and print out how many of the numbers in the second array returned true.
+    uint64_t i;
+
+    index_t array1[100];
+    index_t array2[100];
+
+    for(i=0; i<100; i++) {
+    	array1[i] = rand()%1000000;
+    	array2[i] = rand()%1000000;
+    }
 	
+	// printf("size of array : %lu\n", sizeof(array1)/sizeof(index_t));
+ //    for(i=0; i<10; i++) {
+ //    	printf("%llu\n", array2[i]);
+ //    }
+
 	bloom_filter_t *B = (bloom_filter_t *) malloc(sizeof(bloom_filter_t));
 	bloom_init(B, 1000);
 	
-	int i;
+	
 	for (i = 0; i < 100; i++) {
 		bloom_add(B, array1[i]);
 	}
@@ -147,15 +162,7 @@ int main() {
     smoke_test();
 
     // 4. For final test
-    index_t array1[100];
-    index_t array2[100];
-
-    for(i=0; i<100; i++) {
-    	array1[i] = rand()%1000000;
-    	array2[i] = rand()%1000000;
-    }
-
-    final_test(array1, array2);
+    final_test();
 
     
     return 0;
